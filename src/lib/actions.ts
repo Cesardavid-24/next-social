@@ -1,9 +1,49 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+
+export const ensureUserExists = async (userId: string) => {
+  const userExists = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!userExists) {
+    try {
+      const clerkUser = await currentUser();
+      if (clerkUser) {
+        let username = clerkUser.username || clerkUser.firstName || `user_${userId.slice(-6)}`;
+        const existingUsername = await prisma.user.findUnique({
+          where: { username },
+        });
+        if (existingUsername) {
+          username = `${username}_${Math.floor(Math.random() * 1000)}`;
+        }
+        await prisma.user.create({
+          data: {
+            id: userId,
+            username,
+            avatar: clerkUser.imageUrl || "/noAvatar.png",
+            cover: "/noCover.png",
+          },
+        });
+      } else {
+        await prisma.user.create({
+          data: {
+            id: userId,
+            username: `user_${userId.slice(-6)}`,
+            avatar: "/noAvatar.png",
+            cover: "/noCover.png",
+          },
+        });
+      }
+    } catch (err) {
+      console.log("Error auto-inserting user:", err);
+    }
+  }
+};
 
 export const switchFollow = async (userId: string) => {
   const { userId: currentUserId } = auth();
@@ -11,6 +51,8 @@ export const switchFollow = async (userId: string) => {
   if (!currentUserId) {
     throw new Error("User is not authenticated!");
   }
+
+  await ensureUserExists(currentUserId);
 
   try {
     const existingFollow = await prisma.follower.findFirst({
@@ -62,6 +104,8 @@ export const switchBlock = async (userId: string) => {
     throw new Error("User is not Authenticated!!");
   }
 
+  await ensureUserExists(currentUserId);
+
   try {
     const existingBlock = await prisma.block.findFirst({
       where: {
@@ -97,6 +141,8 @@ export const acceptFollowRequest = async (userId: string) => {
     throw new Error("User is not Authenticated!!");
   }
 
+  await ensureUserExists(currentUserId);
+
   try {
     const existingFollowRequest = await prisma.followRequest.findFirst({
       where: {
@@ -131,6 +177,8 @@ export const declineFollowRequest = async (userId: string) => {
   if (!currentUserId) {
     throw new Error("User is not Authenticated!!");
   }
+
+  await ensureUserExists(currentUserId);
 
   try {
     const existingFollowRequest = await prisma.followRequest.findFirst({
@@ -188,6 +236,8 @@ export const updateProfile = async (
     return { success: false, error: true };
   }
 
+  await ensureUserExists(userId);
+
   try {
     await prisma.user.update({
       where: {
@@ -206,6 +256,8 @@ export const switchLike = async (postId: number) => {
   const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
+
+  await ensureUserExists(userId);
 
   try {
     const existingLike = await prisma.like.findFirst({
@@ -239,6 +291,8 @@ export const addComment = async (postId: number, desc: string) => {
   const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
+
+  await ensureUserExists(userId);
 
   try {
     const createdComment = await prisma.comment.create({
@@ -275,6 +329,8 @@ export const addPost = async (formData: FormData, img: string) => {
 
   if (!userId) throw new Error("User is not authenticated!");
 
+  await ensureUserExists(userId);
+
   try {
     await prisma.post.create({
       data: {
@@ -294,6 +350,8 @@ export const addStory = async (img: string) => {
   const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
+
+  await ensureUserExists(userId);
 
   try {
     const existingStory = await prisma.story.findFirst({
@@ -320,6 +378,7 @@ export const addStory = async (img: string) => {
       },
     });
 
+    revalidatePath("/");
     return createdStory;
   } catch (err) {
     console.log(err);

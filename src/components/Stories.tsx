@@ -8,25 +8,25 @@ const Stories = async () => {
 
   if (!currentUserId) return null;
 
+  const following = await prisma.follower.findMany({
+    where: {
+      followerId: currentUserId,
+    },
+    select: {
+      followingId: true,
+    },
+  });
+
+  const followingIds = following.map((f) => f.followingId);
+
   const stories = await prisma.story.findMany({
     where: {
       expiresAt: {
         gt: new Date(),
       },
-      OR: [
-        {
-          user: {
-            followers: {
-              some: {
-                followerId: currentUserId,
-              },
-            },
-          },
-        },
-        {
-          userId: currentUserId,
-        },
-      ],
+      userId: {
+        in: [currentUserId, ...followingIds],
+      },
     },
     include: {
       user: true,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
 import { useState } from "react";
@@ -15,6 +14,10 @@ const AddPost = () => {
 
   if (!isLoaded) {
     return "Loading...";
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -51,7 +54,7 @@ const AddPost = () => {
         {/* POST OPTIONS */}
         <div className="flex items-center gap-4 mt-4 text-gray-400 flex-wrap">
           <CldUploadWidget
-            uploadPreset="social"
+            uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "social"}
             onSuccess={(result, { widget }) => {
               setImg(result.info);
               widget.close();

@@ -31,6 +31,7 @@ const PostInteraction = ({
   );
 
   const likeAction = async () => {
+    if (!userId) return;
     switchOptimisticLike("");
     try {
       switchLike(postId);
