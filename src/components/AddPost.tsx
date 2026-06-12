@@ -33,14 +33,37 @@ const AddPost = () => {
       {/* POST */}
       <div className="flex-1">
         {/* TEXT INPUT */}
-        <form action={(formData)=>addPost(formData,img?.secure_url || "")} className="flex gap-4">
-          <textarea
-            placeholder="What's on your mind?"
-            className="flex-1 bg-slate-100 rounded-lg p-2"
-            name="desc"
-            onChange={(e) => setDesc(e.target.value)}
-          ></textarea>
-          <div className="">
+        <form 
+          action={async (formData) => {
+            await addPost(formData, img?.secure_url || "");
+            setDesc("");
+            setImg(null);
+            // Optionally, we could reset the form manually if needed
+          }} 
+          className="flex gap-4"
+        >
+          <div className="flex-1">
+            <textarea
+              placeholder="What's on your mind?"
+              className="w-full bg-slate-100 rounded-lg p-2"
+              name="desc"
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+            ></textarea>
+            {img && (
+              <div className="relative mt-2 w-32 h-32">
+                <Image src={img.secure_url} alt="preview" fill className="object-cover rounded-md" />
+                <button
+                  type="button"
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  onClick={() => setImg(null)}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
             <Image
               src="/emoji.png"
               alt=""

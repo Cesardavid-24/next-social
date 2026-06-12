@@ -14,9 +14,11 @@ type StoryWithUser = Story & {
 const StoryList = ({
   stories,
   userId,
+  isNavbar = false,
 }: {
   stories: StoryWithUser[];
   userId: string;
+  isNavbar?: boolean;
 }) => {
   const [storyList, setStoryList] = useState(stories);
   const [img, setImg] = useState<any>();
@@ -87,40 +89,42 @@ const StoryList = ({
         }
       `}</style>
 
-      <CldUploadWidget
-        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "social"}
-        onSuccess={(result, { widget }) => {
-          setImg(result.info);
-          widget.close();
-        }}
-      >
-        {({ open }) => {
-          return (
-            <div className="flex flex-col items-center gap-2 cursor-pointer relative">
-              <Image
-                src={img?.secure_url || user?.imageUrl || "/noAvatar.png"}
-                alt=""
-                width={80}
-                height={80}
-                className="w-20 h-20 rounded-full ring-2 object-cover"
-                onClick={() => open()}
-              />
-              {img ? (
-                <button 
-                  type="button"
-                  onClick={add}
-                  className="text-xs bg-blue-500 p-1 rounded-md text-white animate-pulse cursor-pointer z-10"
-                >
-                  Send
-                </button>
-              ) : (
-                <span className="font-medium" onClick={() => open()}>Add a Story</span>
-              )}
-              <div className="absolute text-6xl text-gray-200 top-1 pointer-events-none">+</div>
-            </div>
-          );
-        }}
-      </CldUploadWidget>
+      {!isNavbar && (
+        <CldUploadWidget
+          uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "social"}
+          onSuccess={(result, { widget }) => {
+            setImg(result.info);
+            widget.close();
+          }}
+        >
+          {({ open }) => {
+            return (
+              <div className="flex flex-col items-center gap-2 cursor-pointer relative">
+                <Image
+                  src={img?.secure_url || user?.imageUrl || "/noAvatar.png"}
+                  alt=""
+                  width={80}
+                  height={80}
+                  className="w-20 h-20 rounded-full ring-2 object-cover"
+                  onClick={() => open()}
+                />
+                {img ? (
+                  <button 
+                    type="button"
+                    onClick={add}
+                    className="text-xs bg-blue-500 p-1 rounded-md text-white animate-pulse cursor-pointer z-10"
+                  >
+                    Send
+                  </button>
+                ) : (
+                  <span className="font-medium" onClick={() => open()}>Add a Story</span>
+                )}
+                <div className="absolute text-6xl text-gray-200 top-1 pointer-events-none">+</div>
+              </div>
+            );
+          }}
+        </CldUploadWidget>
+      )}
       {/* STORY */}
       {optimisticStories.map((story) => (
         <div
@@ -133,7 +137,7 @@ const StoryList = ({
           }}
         >
           <Image
-            src={story.user.avatar || "/noAvatar.png"}
+            src={story.img || story.user.avatar || "/noAvatar.png"}
             alt=""
             width={80}
             height={80}

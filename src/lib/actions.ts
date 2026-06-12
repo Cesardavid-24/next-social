@@ -316,13 +316,17 @@ export const addComment = async (postId: number, desc: string) => {
 export const addPost = async (formData: FormData, img: string) => {
   const desc = formData.get("desc") as string;
 
-  const Desc = z.string().min(1).max(255);
+  const Desc = z.string().max(255);
 
   const validatedDesc = Desc.safeParse(desc);
 
   if (!validatedDesc.success) {
-    //TODO
     console.log("description is not valid");
+    return;
+  }
+  
+  if (!validatedDesc.data && !img) {
+    console.log("Post must have text or image");
     return;
   }
   const { userId } = auth();

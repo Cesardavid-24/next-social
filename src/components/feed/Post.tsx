@@ -26,11 +26,14 @@ const Post = ({ post }: { post: FeedPostType }) => {
             alt=""
             className="w-10 h-10 rounded-full"
           />
-          <span className="font-medium">
-            {post.user.name && post.user.surname
-              ? post.user.name + " " + post.user.surname
-              : post.user.username}
-          </span>
+          <div className="flex flex-col">
+            <span className="font-medium">
+              {post.user.name && post.user.surname
+                ? post.user.name + " " + post.user.surname
+                : post.user.username}
+            </span>
+            <span className="text-xs text-gray-500">@{post.user.username}</span>
+          </div>
         </div>
         {userId === post.user.id && <PostInfo postId={post.id} />}
       </div>

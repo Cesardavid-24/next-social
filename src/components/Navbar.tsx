@@ -11,11 +11,13 @@ import {
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
 import NavbarNotifications from "./NavbarNotifications";
+import NavbarStories from "./NavbarStories";
 
 const Navbar = async () => {
   const { userId } = auth();
 
   let requests: any[] = [];
+  let stories: any[] = [];
   if (userId) {
     requests = await prisma.followRequest.findMany({
       where: {
@@ -25,6 +27,31 @@ const Navbar = async () => {
         sender: true,
       },
     });
+
+    const following = await prisma.follower.findMany({
+      where: {
+        followerId: userId,
+      },
+      select: {
+        followingId: true,
+      },
+    });
+
+    const followingIds = following.map((f) => f.followingId);
+
+    stories = await prisma.story.findMany({
+      where: {
+        expiresAt: {
+          gt: new Date(),
+        },
+        userId: {
+          in: [userId, ...followingIds],
+        },
+      },
+      include: {
+        user: true,
+      },
+    });
   }
 
   return (
@@ -32,7 +59,7 @@ const Navbar = async () => {
       {/* LEFT */}
       <div className="md:hidden lg:block w-[20%]">
         <Link href="/" className="font-bold text-xl text-blue-600">
-          LAMASOCIAL
+          SomosUnefaEU
         </Link>
       </div>
       {/* CENTER */}
@@ -59,16 +86,20 @@ const Navbar = async () => {
             />
             <span>Friends</span>
           </Link>
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/stories.png"
-              alt="Stories"
-              width={16}
-              height={16}
-              className="w-4 h-4"
-            />
-            <span>Stories</span>
-          </Link>
+          {userId ? (
+            <NavbarStories stories={stories} userId={userId} />
+          ) : (
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/stories.png"
+                alt="Stories"
+                width={16}
+                height={16}
+                className="w-4 h-4"
+              />
+              <span>Stories</span>
+            </Link>
+          )}
         </div>
         <div className='hidden xl:flex p-2 bg-slate-100 items-center rounded-xl'>
           <input type="text" placeholder="search..." className="bg-transparent outline-none" />
