@@ -7,10 +7,13 @@ import { useState } from "react";
 import AddPostButton from "./AddPostButton";
 import { addPost } from "@/lib/actions";
 
-const AddPost = () => {
+const AddPost = ({ groupId }: { groupId?: string }) => {
   const { user, isLoaded } = useUser();
   const [desc, setDesc] = useState("");
   const [img, setImg] = useState<any>();
+  const [showPoll, setShowPoll] = useState(false);
+  const [pollTitle, setPollTitle] = useState("");
+  const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
 
   if (!isLoaded) {
     return "Loading...";
@@ -35,16 +38,26 @@ const AddPost = () => {
         {/* TEXT INPUT */}
         <form 
           action={async (formData) => {
-            await addPost(formData, img?.secure_url || "");
+            const validOptions = pollOptions.filter(opt => opt.trim() !== "");
+            if (showPoll && validOptions.length >= 2) {
+              formData.set("pollOptions", JSON.stringify(validOptions));
+              if (pollTitle.trim()) {
+                formData.set("pollTitle", pollTitle.trim());
+              }
+            }
+            await addPost(formData, img?.secure_url || "", groupId);
             setDesc("");
             setImg(null);
+            setShowPoll(false);
+            setPollTitle("");
+            setPollOptions(["", ""]);
             // Optionally, we could reset the form manually if needed
           }} 
           className="flex gap-4"
         >
           <div className="flex-1">
             <textarea
-              placeholder="What's on your mind?"
+              placeholder="¿Qué estás pensando?"
               className="w-full bg-slate-100 rounded-lg p-2"
               name="desc"
               value={desc}
@@ -60,6 +73,44 @@ const AddPost = () => {
                 >
                   ✕
                 </button>
+              </div>
+            )}
+            {showPoll && (
+              <div className="mt-4 flex flex-col gap-2 border border-slate-200 p-4 rounded-lg">
+                <div className="text-sm font-semibold text-gray-600 flex justify-between">
+                  <span>Encuesta</span>
+                  <button type="button" onClick={() => setShowPoll(false)} className="text-red-500">✕</button>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Haz una pregunta..."
+                  className="w-full bg-slate-100 rounded-lg p-2 text-sm font-medium mb-2"
+                  value={pollTitle}
+                  onChange={(e) => setPollTitle(e.target.value)}
+                />
+                {pollOptions.map((opt, i) => (
+                  <input
+                    key={i}
+                    type="text"
+                    placeholder={`Opción ${i + 1}`}
+                    className="w-full bg-slate-100 rounded-lg p-2 text-sm"
+                    value={opt}
+                    onChange={(e) => {
+                      const newOpts = [...pollOptions];
+                      newOpts[i] = e.target.value;
+                      setPollOptions(newOpts);
+                    }}
+                  />
+                ))}
+                {pollOptions.length < 4 && (
+                  <button
+                    type="button"
+                    className="text-blue-500 text-sm mt-2 text-left"
+                    onClick={() => setPollOptions([...pollOptions, ""])}
+                  >
+                    + Añadir Opción
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -90,7 +141,7 @@ const AddPost = () => {
                   onClick={() => open()}
                 >
                   <Image src="/addimage.png" alt="" width={20} height={20} />
-                  Photo
+                  Foto
                 </div>
               );
             }}
@@ -99,13 +150,16 @@ const AddPost = () => {
             <Image src="/addVideo.png" alt="" width={20} height={20} />
             Video
           </div>
-          <div className="flex items-center gap-2 cursor-pointer">
+          <div 
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => setShowPoll(true)}
+          >
             <Image src="/poll.png" alt="" width={20} height={20} />
-            Poll
+            Encuesta
           </div>
           <div className="flex items-center gap-2 cursor-pointer">
             <Image src="/addevent.png" alt="" width={20} height={20} />
-            Event
+            Evento
           </div>
         </div>
       </div>

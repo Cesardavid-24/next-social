@@ -6,10 +6,28 @@ import { Suspense } from "react";
 import PostInfo from "./PostInfo";
 import { auth } from "@clerk/nextjs/server";
 
+import PollDisplay from "./PollDisplay";
+
 type FeedPostType = PostType & { user: User } & {
   likes: [{ userId: string }];
 } & {
   _count: { comments: number };
+} & {
+  poll?: {
+    id: number;
+    postId: number;
+    title: string | null;
+    options: {
+      id: number;
+      pollId: number;
+      option: string;
+      _count: { votes: number };
+    }[];
+    votes: {
+      userId: string;
+      pollOptionId: number;
+    }[];
+  } | null;
 };
 
 const Post = ({ post }: { post: FeedPostType }) => {
@@ -50,6 +68,7 @@ const Post = ({ post }: { post: FeedPostType }) => {
           </div>
         )}
         <p>{post.desc}</p>
+        {post.poll && <PollDisplay poll={post.poll} />}
       </div>
       {/* INTERACTION */}
       <Suspense fallback="Loading...">

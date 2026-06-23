@@ -12,13 +12,18 @@ import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
 import NavbarNotifications from "./NavbarNotifications";
 import NavbarStories from "./NavbarStories";
+import SearchBar from "./SearchBar";
+import NavbarMessages from "./NavbarMessages";
+import { getUnreadMessages } from "@/lib/actions";
 
 const Navbar = async () => {
   const { userId } = auth();
 
   let requests: any[] = [];
   let stories: any[] = [];
+  let unreadMessages: any[] = [];
   if (userId) {
+    unreadMessages = await getUnreadMessages();
     requests = await prisma.followRequest.findMany({
       where: {
         receiverId: userId,
@@ -58,8 +63,9 @@ const Navbar = async () => {
     <div className="h-24 flex items-center justify-between">
       {/* LEFT */}
       <div className="md:hidden lg:block w-[20%]">
-        <Link href="/" className="font-bold text-xl text-blue-600">
-          SomosUnefaEU
+        <Link href="/" className="font-bold text-xl text-blue-600 flex items-center gap-2">
+          <Image src="/logo-unefa.png" alt="Logo" width={32} height={32} className="object-contain" />
+          <span>SomosUnefaEE</span>
         </Link>
       </div>
       {/* CENTER */}
@@ -69,22 +75,22 @@ const Navbar = async () => {
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/home.png"
-              alt="Homepage"
+              alt="Inicio"
               width={16}
               height={16}
               className="w-4 h-4"
             />
-            <span>Homepage</span>
+            <span>Inicio</span>
           </Link>
           <Link href="/friends" className="flex items-center gap-2">
             <Image
               src="/friends.png"
-              alt="Friends"
+              alt="Amigos"
               width={16}
               height={16}
               className="w-4 h-4"
             />
-            <span>Friends</span>
+            <span>Amigos</span>
           </Link>
           {userId ? (
             <NavbarStories stories={stories} userId={userId} />
@@ -92,19 +98,16 @@ const Navbar = async () => {
             <Link href="/" className="flex items-center gap-2">
               <Image
                 src="/stories.png"
-                alt="Stories"
+                alt="Historias"
                 width={16}
                 height={16}
                 className="w-4 h-4"
               />
-              <span>Stories</span>
+              <span>Historias</span>
             </Link>
           )}
         </div>
-        <div className='hidden xl:flex p-2 bg-slate-100 items-center rounded-xl'>
-          <input type="text" placeholder="search..." className="bg-transparent outline-none" />
-          <Image src="/search.png" alt="" width={14} height={14} />
-        </div>
+        <SearchBar />
       </div>
       {/* RIGHT */}
       <div className="w-[30%] flex items-center gap-4 xl:gap-8 justify-end">
@@ -117,17 +120,14 @@ const Navbar = async () => {
               <Image src="/people.png" alt="People" width={20} height={20} className="w-5 h-5" />
               <span className="text-[10px] text-gray-500">Amigos</span>
             </Link>
-            <div className="cursor-pointer flex flex-col items-center gap-1">
-              <Image src="/messages.png" alt="Messages" width={20} height={20} className="w-5 h-5" />
-              <span className="text-[10px] text-gray-500">Mensajes</span>
-            </div>
+            <NavbarMessages unreadMessages={unreadMessages} />
             <NavbarNotifications requests={requests} />
             <UserButton />
           </SignedIn>
           <SignedOut>
             <div className="flex items-center gap-2 text-sm">
               <Image src="/login.png" alt="" width={20} height={20} />
-              <Link href="/sign-in">Login/Register</Link>
+              <Link href="/sign-in">Entrar/Registrarse</Link>
               <span className="text-[10px] text-gray-500">Perfil</span>
             </div>
           </SignedOut>

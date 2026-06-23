@@ -2,17 +2,15 @@ import { auth } from "@clerk/nextjs/server";
 import Post from "./Post";
 import prisma from "@/lib/client";
 
-const Feed = async ({ username }: { username?: string }) => {
+const Feed = async ({ username, groupId }: { username?: string, groupId?: string }) => {
   const { userId } = auth();
 
   let posts:any[] =[];
 
-  if (username) {
+  if (groupId) {
     posts = await prisma.post.findMany({
       where: {
-        user: {
-          username: username,
-        },
+        groupId: groupId,
       },
       include: {
         user: true,
@@ -26,14 +24,61 @@ const Feed = async ({ username }: { username?: string }) => {
             comments: true,
           },
         },
+        poll: {
+          include: {
+            options: {
+              include: {
+                _count: { select: { votes: true } },
+              },
+            },
+            votes: {
+              where: { userId: userId || "" },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
-  }
-
-  if (!username && userId) {
+  } else if (username) {
+    posts = await prisma.post.findMany({
+      where: {
+        user: {
+          username: username,
+        },
+        groupId: null,
+      },
+      include: {
+        user: true,
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
+        poll: {
+          include: {
+            options: {
+              include: {
+                _count: { select: { votes: true } },
+              },
+            },
+            votes: {
+              where: { userId: userId || "" },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  } else if (!username && userId) {
     const following = await prisma.follower.findMany({
       where: {
         followerId: userId,
@@ -51,6 +96,7 @@ const Feed = async ({ username }: { username?: string }) => {
         userId: {
           in: ids,
         },
+        groupId: null,
       },
       include: {
         user: true,
@@ -62,6 +108,18 @@ const Feed = async ({ username }: { username?: string }) => {
         _count: {
           select: {
             comments: true,
+          },
+        },
+        poll: {
+          include: {
+            options: {
+              include: {
+                _count: { select: { votes: true } },
+              },
+            },
+            votes: {
+              where: { userId: userId || "" },
+            },
           },
         },
       },
@@ -69,10 +127,11 @@ const Feed = async ({ username }: { username?: string }) => {
         createdAt: "desc",
       },
     });
-  }
-
-  if (!username && !userId) {
+  } else if (!username && !userId) {
     posts = await prisma.post.findMany({
+      where: {
+        groupId: null,
+      },
       include: {
         user: true,
         likes: {
@@ -83,6 +142,18 @@ const Feed = async ({ username }: { username?: string }) => {
         _count: {
           select: {
             comments: true,
+          },
+        },
+        poll: {
+          include: {
+            options: {
+              include: {
+                _count: { select: { votes: true } },
+              },
+            },
+            votes: {
+              where: { userId: userId || "" },
+            },
           },
         },
       },

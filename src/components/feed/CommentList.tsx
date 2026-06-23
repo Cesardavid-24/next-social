@@ -30,7 +30,7 @@ const CommentList = ({
       postId: postId,
       user: {
         id: user.id,
-        username: "Sending Please Wait...",
+        username: "Enviando, por favor espera...",
         avatar: user.imageUrl || "/noAvatar.png",
         cover: "",
         description: "",
@@ -70,7 +70,7 @@ const CommentList = ({
           >
             <input
               type="text"
-              placeholder="Write a comment..."
+              placeholder="escribe un comentario..."
               className="bg-transparent outline-none flex-1"
               onChange={(e) => setDesc(e.target.value)}
             />
@@ -114,9 +114,9 @@ const CommentList = ({
                     className="cursor-pointer w-4 h-4"
                   />
                   <span className="text-gray-300">|</span>
-                  <span className="text-gray-500">0 Likes</span>
+                  <span className="text-gray-500">0 Me gusta</span>
                 </div>
-                <div className="">Reply</div>
+                <div className="">Responder</div>
               </div>
             </div>
             {/* ICON */}

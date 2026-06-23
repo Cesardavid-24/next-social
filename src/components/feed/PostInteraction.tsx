@@ -59,7 +59,7 @@ const PostInteraction = ({
           <span className="text-gray-300">|</span>
           <span className="text-gray-500">
             {optimisticLike.likeCount}
-            <span className="hidden md:inline"> Likes</span>
+            <span className="hidden md:inline"> Me gusta</span>
           </span>
         </div>
         <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-xl">
@@ -72,7 +72,7 @@ const PostInteraction = ({
           />
           <span className="text-gray-300">|</span>
           <span className="text-gray-500">
-            {commentNumber}<span className="hidden md:inline"> Comments</span>
+            {commentNumber}<span className="hidden md:inline"> Comentarios</span>
           </span>
         </div>
       </div>
@@ -87,7 +87,7 @@ const PostInteraction = ({
           />
           <span className="text-gray-300">|</span>
           <span className="text-gray-500">
-            <span className="hidden md:inline"> Share</span>
+            <span className="hidden md:inline"> Compartir</span>
           </span>
         </div>
       </div>

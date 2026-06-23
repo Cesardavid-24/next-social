@@ -52,17 +52,17 @@ const FriendsPage = async () => {
       <div className="w-full lg:w-[70%] xl:w-[50%] flex flex-col gap-6">
         {/* FRIEND REQUESTS SECTION */}
         <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
-          <h1 className="text-gray-500 font-medium text-lg">Friend Requests ({requests.length})</h1>
+          <h1 className="text-gray-500 font-medium text-lg">Solicitudes de Amistad ({requests.length})</h1>
           {requests.length > 0 ? (
             <FriendRequestList requests={requests} />
           ) : (
-            <p className="text-gray-400">No pending friend requests.</p>
+            <p className="text-gray-400">No hay solicitudes de amistad pendientes.</p>
           )}
         </div>
 
         {/* FOLLOWERS SECTION */}
         <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
-          <h1 className="text-gray-500 font-medium text-lg">Followers ({followers.length})</h1>
+          <h1 className="text-gray-500 font-medium text-lg">Seguidores ({followers.length})</h1>
           {followers.length > 0 ? (
             <div className="flex flex-col gap-4">
               {followers.map((f) => (
@@ -82,19 +82,19 @@ const FriendsPage = async () => {
                     </span>
                   </div>
                   <Link href={`/profile/${f.follower.username}`} className="bg-blue-500 text-white text-xs px-3 py-1.5 rounded-md hover:bg-blue-600 transition">
-                    View Profile
+                    Ver Perfil
                   </Link>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-400">No followers yet.</p>
+            <p className="text-gray-400">Aún no tienes seguidores.</p>
           )}
         </div>
 
         {/* FOLLOWING SECTION */}
         <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
-          <h1 className="text-gray-500 font-medium text-lg">Following ({followings.length})</h1>
+          <h1 className="text-gray-500 font-medium text-lg">Siguiendo ({followings.length})</h1>
           {followings.length > 0 ? (
             <div className="flex flex-col gap-4">
               {followings.map((f) => (
@@ -114,13 +114,13 @@ const FriendsPage = async () => {
                     </span>
                   </div>
                   <Link href={`/profile/${f.following.username}`} className="bg-blue-500 text-white text-xs px-3 py-1.5 rounded-md hover:bg-blue-600 transition">
-                    View Profile
+                    Ver Perfil
                   </Link>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-400">You are not following anyone yet.</p>
+            <p className="text-gray-400">Aún no sigues a nadie.</p>
           )}
         </div>
       </div>

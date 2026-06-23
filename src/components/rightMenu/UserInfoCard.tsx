@@ -51,12 +51,12 @@ const UserInfoCard = async ({ user }: { user: User }) => {
     <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
       {/* TOP */}
       <div className="flex justify-between items-center font-medium">
-        <span className="text-gray-500">User Information</span>
+        <span className="text-gray-500">Información del Usuario</span>
         {currentUserId === user.id ? (
           <UpdateUser user={user}/>
         ) : (
           <Link href="/" className="text-blue-500 text-xs">
-            See all
+            Ver todo
           </Link>
         )}
       </div>
@@ -76,7 +76,7 @@ const UserInfoCard = async ({ user }: { user: User }) => {
           <div className="flex items-center gap-2">
             <Image src="/map.png" alt="" width={16} height={16} />
             <span>
-              Living in <b>{user.city}</b>
+              Vive en <b>{user.city}</b>
             </span>
           </div>
         )}
@@ -84,7 +84,7 @@ const UserInfoCard = async ({ user }: { user: User }) => {
           <div className="flex items-center gap-2">
             <Image src="/school.png" alt="" width={16} height={16} />
             <span>
-              Went to <b>{user.school}</b>
+              Estudió en <b>{user.school}</b>
             </span>
           </div>
         )}
@@ -92,7 +92,7 @@ const UserInfoCard = async ({ user }: { user: User }) => {
           <div className="flex items-center gap-2">
             <Image src="/work.png" alt="" width={16} height={16} />
             <span>
-              Works at <b>{user.work}</b>
+              Trabaja en <b>{user.work}</b>
             </span>
           </div>
         )}
@@ -107,16 +107,24 @@ const UserInfoCard = async ({ user }: { user: User }) => {
           )}
           <div className="flex gap-1 items-center">
             <Image src="/date.png" alt="" width={16} height={16} />
-            <span>Joined {formattedDate}</span>
+            <span>Miembro desde {formattedDate}</span>
           </div>
         </div>
         {currentUserId && currentUserId !== user.id && (
-          <UserInfoCardInteraction
-            userId={user.id}
-            isUserBlocked={isUserBlocked}
-            isFollowing={isFollowing}
-            isFollowingSent={isFollowingSent}
-          />
+          <>
+            <UserInfoCardInteraction
+              userId={user.id}
+              isUserBlocked={isUserBlocked}
+              isFollowing={isFollowing}
+              isFollowingSent={isFollowingSent}
+            />
+            <Link
+              href={`/messages/${user.username}`}
+              className="w-full bg-blue-100 text-blue-600 p-2 text-center rounded-md text-sm hover:bg-blue-200 transition-colors"
+            >
+              Enviar Mensaje
+            </Link>
+          </>
         )}
       </div>
     </div>

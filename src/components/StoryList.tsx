@@ -46,7 +46,7 @@ const StoryList = ({
       userId: userId,
       user: {
         id: userId,
-        username: "Sending...",
+        username: "Enviando...",
         avatar: user?.imageUrl || "/noAvatar.png",
         cover: "",
         description: "",
@@ -114,10 +114,10 @@ const StoryList = ({
                     onClick={add}
                     className="text-xs bg-blue-500 p-1 rounded-md text-white animate-pulse cursor-pointer z-10"
                   >
-                    Send
+                    Enviar
                   </button>
                 ) : (
-                  <span className="font-medium" onClick={() => open()}>Add a Story</span>
+                  <span className="font-medium" onClick={() => open()}>Añadir Historia</span>
                 )}
                 <div className="absolute text-6xl text-gray-200 top-1 pointer-events-none">+</div>
               </div>
@@ -131,7 +131,7 @@ const StoryList = ({
           className="flex flex-col items-center gap-2 cursor-pointer"
           key={story.id}
           onClick={() => {
-            if (story.user.username !== "Sending...") {
+            if (story.user.username !== "Enviando...") {
               setActiveStory(story);
             }
           }}

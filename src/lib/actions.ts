@@ -4,6 +4,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import prisma from "./client";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { calculateSearchScore } from "./algorithms/levenshtein";
 
 export const ensureUserExists = async (userId: string) => {
   const userExists = await prisma.user.findUnique({
@@ -91,6 +92,7 @@ export const switchFollow = async (userId: string) => {
         });
       }
     }
+    revalidatePath("/");
   } catch (err) {
     console.log(err);
     throw new Error("Something went wrong!");
@@ -128,6 +130,7 @@ export const switchBlock = async (userId: string) => {
         },
       });
     }
+    revalidatePath("/");
   } catch (err) {
     console.log(err);
     throw new Error("Something went wrong!");
@@ -165,6 +168,7 @@ export const acceptFollowRequest = async (userId: string) => {
         },
       });
     }
+    revalidatePath("/");
   } catch (err) {
     console.log(err);
     throw new Error("Something went wrong!");
@@ -195,6 +199,7 @@ export const declineFollowRequest = async (userId: string) => {
         },
       });
     }
+    revalidatePath("/");
   } catch (err) {
     console.log(err);
     throw new Error("Something went wrong!");
@@ -313,11 +318,12 @@ export const addComment = async (postId: number, desc: string) => {
   }
 };
 
-export const addPost = async (formData: FormData, img: string) => {
+export const addPost = async (formData: FormData, img: string, groupId?: string) => {
   const desc = formData.get("desc") as string;
+  const pollOptionsStr = formData.get("pollOptions") as string;
+  const pollTitle = formData.get("pollTitle") as string;
 
   const Desc = z.string().max(255);
-
   const validatedDesc = Desc.safeParse(desc);
 
   if (!validatedDesc.success) {
@@ -325,10 +331,20 @@ export const addPost = async (formData: FormData, img: string) => {
     return;
   }
   
-  if (!validatedDesc.data && !img) {
-    console.log("Post must have text or image");
+  if (!validatedDesc.data && !img && !pollOptionsStr) {
+    console.log("Post must have text, image, or a poll");
     return;
   }
+  
+  let pollOptions: string[] = [];
+  if (pollOptionsStr) {
+    try {
+      pollOptions = JSON.parse(pollOptionsStr);
+    } catch (e) {
+      console.log("Invalid poll options");
+    }
+  }
+
   const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
@@ -336,17 +352,75 @@ export const addPost = async (formData: FormData, img: string) => {
   await ensureUserExists(userId);
 
   try {
+    const postData: any = {
+      desc: validatedDesc.data,
+      userId,
+      img,
+      groupId: groupId || null,
+    };
+
+    if (pollOptions.length >= 2) {
+      postData.poll = {
+        create: {
+          title: pollTitle || null,
+          options: {
+            create: pollOptions.map(opt => ({ option: opt }))
+          }
+        }
+      };
+    }
+
     await prisma.post.create({
-      data: {
-        desc: validatedDesc.data,
-        userId,
-        img,
+      data: postData,
+    });
+
+    revalidatePath("/");
+    if (groupId) {
+      revalidatePath(`/red-unefa`);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const votePoll = async (pollId: number, pollOptionId: number) => {
+  const { userId } = auth();
+
+  if (!userId) throw new Error("User is not authenticated!");
+
+  await ensureUserExists(userId);
+
+  try {
+    const existingVote = await prisma.pollVote.findUnique({
+      where: {
+        userId_pollId: {
+          userId,
+          pollId,
+        },
       },
     });
+
+    if (existingVote) {
+      // Si el usuario ya votó, podríamos permitirle cambiar su voto, o simplemente ignorarlo.
+      // Aquí actualizamos su voto.
+      await prisma.pollVote.update({
+        where: { id: existingVote.id },
+        data: { pollOptionId },
+      });
+    } else {
+      await prisma.pollVote.create({
+        data: {
+          userId,
+          pollId,
+          pollOptionId,
+        },
+      });
+    }
 
     revalidatePath("/");
   } catch (err) {
     console.log(err);
+    throw new Error("Something went wrong");
   }
 };
 
@@ -406,3 +480,208 @@ export const deletePost = async (postId: number) => {
     console.log(err);
   }
 };
+
+export const searchUsers = async (query: string) => {
+  if (!query || query.trim() === "") return [];
+
+  try {
+    // Obtenemos todos los usuarios (para un proyecto grande se limitaría la búsqueda en DB primero)
+    // Para demostrar el algoritmo, lo hacemos en memoria.
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        surname: true,
+        avatar: true,
+      },
+    });
+
+    const scoredUsers = users.map(user => {
+      const score = calculateSearchScore(query, user.username, user.name, user.surname);
+      return { ...user, score };
+    });
+
+    // Filtramos los que tienen un score > 0 y ordenamos de mayor a menor relevancia
+    const topUsers = scoredUsers
+      .filter(user => user.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5); // Tomamos los 5 mejores resultados
+
+    return topUsers;
+  } catch (err) {
+    console.log("Error searching users:", err);
+    return [];
+  }
+};
+
+export const sendMessage = async (receiverId: string, content: string) => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) throw new Error("User is not authenticated!");
+
+  try {
+    const newMessage = await prisma.message.create({
+      data: {
+        senderId: currentUserId,
+        receiverId,
+        content,
+      },
+    });
+    // Si la UI se basa en RSC, podríamos revalidar el path
+    // revalidatePath(`/messages/${receiverId}`);
+    return newMessage;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to send message");
+  }
+};
+
+export const getMessages = async (otherUserId: string) => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) throw new Error("User is not authenticated!");
+
+  try {
+    const messages = await prisma.message.findMany({
+      where: {
+        OR: [
+          { senderId: currentUserId, receiverId: otherUserId },
+          { senderId: otherUserId, receiverId: currentUserId },
+        ],
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+    return messages;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch messages");
+  }
+};
+
+export const getConversations = async () => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) throw new Error("User is not authenticated!");
+
+  try {
+    const sentMessages = await prisma.message.findMany({
+      where: { senderId: currentUserId },
+      select: { receiverId: true, receiver: { select: { id: true, username: true, name: true, surname: true, avatar: true } } },
+      distinct: ['receiverId']
+    });
+
+    const receivedMessages = await prisma.message.findMany({
+      where: { receiverId: currentUserId },
+      select: { senderId: true, sender: { select: { id: true, username: true, name: true, surname: true, avatar: true } } },
+      distinct: ['senderId']
+    });
+
+    const usersMap = new Map();
+    sentMessages.forEach(m => usersMap.set(m.receiver.id, m.receiver));
+    receivedMessages.forEach(m => usersMap.set(m.sender.id, m.sender));
+
+    return Array.from(usersMap.values());
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch conversations");
+  }
+};
+
+export const markMessagesAsRead = async (otherUserId: string) => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) return;
+
+  try {
+    await prisma.message.updateMany({
+      where: {
+        senderId: otherUserId,
+        receiverId: currentUserId,
+        isRead: false,
+      },
+      data: {
+        isRead: true,
+      },
+    });
+  } catch (err) {
+    console.log("Error marking messages as read:", err);
+  }
+};
+
+export const getUnreadMessages = async () => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) return [];
+
+  try {
+    const unreadMessages = await prisma.message.findMany({
+      where: {
+        receiverId: currentUserId,
+        isRead: false,
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            surname: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    // Agrupar por remitente (solo queremos mostrar la última notificación por usuario)
+    const uniqueSenders = new Map();
+    unreadMessages.forEach((msg) => {
+      if (!uniqueSenders.has(msg.senderId)) {
+        uniqueSenders.set(msg.senderId, msg);
+      }
+    });
+
+    return Array.from(uniqueSenders.values());
+  } catch (err) {
+    console.log("Error fetching unread messages:", err);
+    return [];
+  }
+};
+
+export const toggleGroupMembership = async (groupId: string) => {
+  const { userId } = auth();
+
+  if (!userId) throw new Error("User is not authenticated!");
+
+  await ensureUserExists(userId);
+
+  try {
+    const existingMembership = await prisma.groupMember.findFirst({
+      where: {
+        userId,
+        groupId,
+      },
+    });
+
+    if (existingMembership) {
+      await prisma.groupMember.delete({
+        where: {
+          id: existingMembership.id,
+        },
+      });
+    } else {
+      await prisma.groupMember.create({
+        data: {
+          userId,
+          groupId,
+        },
+      });
+    }
+
+    revalidatePath(`/${groupId}`);
+  } catch (err) {
+    console.log(err);
+    throw new Error("Something went wrong");
+  }
+};
+

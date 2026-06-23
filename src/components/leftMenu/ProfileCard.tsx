@@ -74,12 +74,12 @@ const ProfileCard = async () => {
             />
           </div>
           <span className="text-xs text-gray-500">
-            {user._count.followers} Followers
+            {user._count.followers} Seguidores
           </span>
         </div>
         <Link href={`/profile/${user.username}`}>
           <button className="bg-blue-500 text-white text-xs p-2 rounded-md">
-            My Profile
+            Mi Perfil
           </button>
         </Link>
       </div>

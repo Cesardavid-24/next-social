@@ -29,7 +29,7 @@ const PeoplePage = async () => {
       </div>
       <div className="w-full lg:w-[70%] xl:w-[50%] flex flex-col gap-6">
         <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
-          <h1 className="text-gray-500 font-medium text-lg">Registered Users ({users.length})</h1>
+          <h1 className="text-gray-500 font-medium text-lg">Comunidad de Usuarios</h1>
           {users.length > 0 ? (
             <div className="flex flex-col gap-4">
               {users.map((user) => (
@@ -49,13 +49,13 @@ const PeoplePage = async () => {
                     </span>
                   </div>
                   <Link href={`/profile/${user.username}`} className="bg-blue-500 text-white text-xs px-3 py-1.5 rounded-md hover:bg-blue-600 transition">
-                    View Profile
+                    Ver Perfil
                   </Link>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-400">No other users found.</p>
+            <p className="text-gray-400">No se encontraron otros usuarios.</p>
           )}
         </div>
       </div>
