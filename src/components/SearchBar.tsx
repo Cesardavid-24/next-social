@@ -64,7 +64,7 @@ const SearchBar = () => {
   };
 
   return (
-    <div ref={wrapperRef} className="relative hidden xl:flex items-center w-[300px]">
+    <div ref={wrapperRef} className="relative hidden md:flex items-center flex-1 min-w-[150px] max-w-[300px] ml-4">
       <div className="flex w-full p-2 bg-slate-100 items-center rounded-xl">
         <input
           type="text"

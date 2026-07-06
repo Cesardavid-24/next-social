@@ -71,7 +71,7 @@ const Navbar = async () => {
       {/* CENTER */}
       <div className="hidden md:flex w-[50%] text-sm items-center justify-between">
         {/* LINKS */}
-        <div className="flex gap-6 text-gray-600">
+        <div className="flex gap-4 lg:gap-6 text-gray-600">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/home.png"
