@@ -1,4 +1,5 @@
 import LeftMenu from "@/components/leftMenu/LeftMenu";
+import InfoUnefaRightMenu from "@/components/rightMenu/InfoUnefaRightMenu";
 import EventFeed from "@/components/events/EventFeed";
 import prisma from "@/lib/client";
 import Image from "next/image";
@@ -48,13 +49,8 @@ const InfoUnefaPage = async () => {
         </div>
       </div>
 
-      {/* Optional Right Sidebar for highlights or ad (empty for now to give events more space) */}
       <div className="hidden lg:block w-[10%] xl:w-[20%]">
-        {/* We can put a small highlight widget or Ad here */}
-        <div className="p-4 bg-white rounded-lg shadow-md text-sm text-gray-500">
-          <h3 className="font-bold text-gray-700 mb-2">Destacados</h3>
-          <p className="text-xs">Mantente al tanto de las notificaciones oficiales de rectorado.</p>
-        </div>
+        <InfoUnefaRightMenu />
       </div>
     </div>
   );

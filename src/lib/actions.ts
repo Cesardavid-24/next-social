@@ -685,3 +685,242 @@ export const toggleGroupMembership = async (groupId: string) => {
   }
 };
 
+export const updateAuthorityImage = async (key: string, url: string) => {
+  const { userId } = auth();
+
+  if (!userId) throw new Error("User is not authenticated!");
+
+  // Aquí idealmente validaríamos que el usuario es administrador
+  try {
+    await prisma.siteSetting.upsert({
+      where: { key },
+      update: { value: url },
+      create: { key, value: url },
+    });
+    revalidatePath("/info-unefa/linea-mando");
+  } catch (err) {
+    console.log("Error updating authority image:", err);
+    throw new Error("Failed to update authority image");
+  }
+};
+
+export const createProduct = async (formData: FormData, img: string) => {
+  const { userId } = auth();
+
+  if (!userId) throw new Error("User is not authenticated!");
+
+  await ensureUserExists(userId);
+
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const priceStr = formData.get("price") as string;
+  const category = formData.get("category") as string;
+
+  if (!title || !description || !priceStr || !category) {
+    throw new Error("Missing required fields");
+  }
+
+  const price = parseFloat(priceStr);
+
+  try {
+    const product = await prisma.product.create({
+      data: {
+        title,
+        description,
+        price,
+        category,
+        img,
+        userId,
+      },
+    });
+
+    revalidatePath("/marketplace");
+    return product;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Something went wrong");
+  }
+};
+
+export const deleteProduct = async (productId: number) => {
+  const { userId } = auth();
+
+  if (!userId) throw new Error("User is not authenticated!");
+
+  try {
+    await prisma.product.delete({
+      where: {
+        id: productId,
+        userId, // Solo el dueño puede borrarlo
+      },
+    });
+    revalidatePath("/marketplace");
+  } catch (err) {
+    console.log(err);
+    throw new Error("Something went wrong");
+  }
+};
+
+export const createGroupChat = async (name: string, memberIds: string[]) => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) throw new Error("User is not authenticated!");
+
+  try {
+    const uniqueMemberIds = Array.from(new Set(memberIds)).filter(id => id !== currentUserId);
+    
+    const groupChat = await prisma.groupChat.create({
+      data: {
+        name,
+        creatorId: currentUserId,
+        members: {
+          create: [
+            { userId: currentUserId }, // El creador también es miembro
+            ...uniqueMemberIds.map(id => ({ userId: id }))
+          ]
+        }
+      }
+    });
+
+    revalidatePath("/messages");
+    return groupChat;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to create group chat");
+  }
+};
+
+export const sendGroupMessage = async (groupChatId: number, content: string) => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) throw new Error("User is not authenticated!");
+
+  try {
+    // Verificar si el usuario es miembro del grupo
+    const membership = await prisma.groupChatMember.findUnique({
+      where: {
+        groupChatId_userId: {
+          groupChatId,
+          userId: currentUserId
+        }
+      }
+    });
+
+    if (!membership) throw new Error("Not a member of this group");
+
+    const newMessage = await prisma.message.create({
+      data: {
+        senderId: currentUserId,
+        groupChatId,
+        content,
+      },
+      include: {
+        sender: true
+      }
+    });
+
+    return newMessage;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to send group message");
+  }
+};
+
+export const getGroupMessages = async (groupChatId: number) => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) throw new Error("User is not authenticated!");
+
+  try {
+    // Verificar si el usuario es miembro
+    const membership = await prisma.groupChatMember.findUnique({
+      where: {
+        groupChatId_userId: {
+          groupChatId,
+          userId: currentUserId
+        }
+      }
+    });
+
+    if (!membership) throw new Error("Not a member of this group");
+
+    const messages = await prisma.message.findMany({
+      where: {
+        groupChatId
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            surname: true,
+            avatar: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+    return messages;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch group messages");
+  }
+};
+
+export const getMyGroupChats = async () => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) throw new Error("User is not authenticated!");
+
+  try {
+    const groupMemberships = await prisma.groupChatMember.findMany({
+      where: {
+        userId: currentUserId
+      },
+      include: {
+        groupChat: {
+          include: {
+            messages: {
+              orderBy: { createdAt: 'desc' },
+              take: 1
+            }
+          }
+        }
+      }
+    });
+
+    return groupMemberships.map(m => m.groupChat);
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch group chats");
+  }
+};
+
+export const getGroupChatDetails = async (groupChatId: number) => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) return null;
+
+  try {
+    const groupChat = await prisma.groupChat.findUnique({
+      where: { id: groupChatId },
+      include: {
+        members: {
+          include: {
+            user: {
+              select: { id: true, username: true, name: true, surname: true, avatar: true }
+            }
+          }
+        }
+      }
+    });
+
+    // Check membership
+    if (!groupChat?.members.some(m => m.userId === currentUserId)) {
+      return null;
+    }
+
+    return groupChat;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
