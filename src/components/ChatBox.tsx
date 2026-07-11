@@ -9,8 +9,10 @@ type Message = {
   id: number;
   content: string;
   createdAt: Date;
+  isRead?: boolean;
   senderId: string;
-  receiverId: string;
+  receiverId: string | null;
+  groupChatId?: number | null;
 };
 
 export default function ChatBox({
