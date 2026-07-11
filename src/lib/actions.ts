@@ -577,8 +577,8 @@ export const getConversations = async () => {
     });
 
     const usersMap = new Map();
-    sentMessages.forEach(m => usersMap.set(m.receiver.id, m.receiver));
-    receivedMessages.forEach(m => usersMap.set(m.sender.id, m.sender));
+    sentMessages.forEach(m => m.receiver && usersMap.set(m.receiver.id, m.receiver));
+    receivedMessages.forEach(m => m.sender && usersMap.set(m.sender.id, m.sender));
 
     return Array.from(usersMap.values());
   } catch (err) {
