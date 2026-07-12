@@ -26,6 +26,7 @@ export default function ChatBox({
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch inicial y Polling cada 3 segundos
   useEffect(() => {
@@ -61,8 +62,8 @@ export default function ChatBox({
 
   // Auto-scroll al fondo cuando llegan mensajes nuevos
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -113,7 +114,7 @@ export default function ChatBox({
       </div>
 
       {/* ÁREA DE MENSAJES */}
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-slate-50">
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-slate-50" ref={chatContainerRef}>
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <div className="w-6 h-6 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
@@ -143,7 +144,6 @@ export default function ChatBox({
             );
           })
         )}
-        <div ref={scrollRef}></div>
       </div>
 
       {/* INPUT PARA ENVIAR */}

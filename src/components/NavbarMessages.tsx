@@ -4,9 +4,11 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getUnreadMessages } from "@/lib/actions"; // Asumiendo que está exportada
 
-const NavbarMessages = ({ unreadMessages }: { unreadMessages: any[] }) => {
+const NavbarMessages = ({ unreadMessages: initialUnreadMessages }: { unreadMessages: any[] }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState<any[]>(initialUnreadMessages);
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -19,6 +21,23 @@ const NavbarMessages = ({ unreadMessages }: { unreadMessages: any[] }) => {
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
   }, [isOpen]);
+
+  // Polling para mensajes nuevos
+  useEffect(() => {
+    const fetchUnreadMessages = async () => {
+      try {
+        const msgs = await getUnreadMessages();
+        if (msgs) {
+          setUnreadMessages(msgs);
+        }
+      } catch (err) {
+        console.error("Error fetching unread messages", err);
+      }
+    };
+
+    const interval = setInterval(fetchUnreadMessages, 10000); // Polling cada 10 segundos
+    return () => clearInterval(interval);
+  }, []);
 
   const handleMessageClick = (username: string) => {
     setIsOpen(false);
