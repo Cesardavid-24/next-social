@@ -3,12 +3,12 @@ import Image from "next/image";
 
 export default function Page() {
   return (
-    <div className="min-h-[calc(100vh-96px)] w-full flex items-center justify-center p-4 lg:p-8">
+    <div className="min-h-[calc(100vh-96px)] w-full flex items-center justify-center p-0 md:p-4 lg:p-8">
       {/* Main Container Container with Glass/Shadow */}
-      <div className="flex flex-col md:flex-row w-full max-w-6xl bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100">
+      <div className="flex flex-col md:flex-row w-full max-w-6xl bg-white md:rounded-[2rem] md:shadow-2xl overflow-hidden md:border border-gray-100 min-h-[calc(100vh-96px)] md:min-h-0">
         
         {/* Left Side: Welcome & Logo (Gradient Background) */}
-        <div className="relative md:flex-1 bg-gradient-to-br from-blue-600 to-indigo-800 p-6 md:p-10 lg:p-16 flex flex-col justify-between overflow-hidden text-white">
+        <div className="relative md:flex-1 bg-gradient-to-br from-blue-600 to-indigo-800 p-4 sm:p-6 md:p-10 lg:p-16 flex flex-col justify-between overflow-hidden text-white">
           
           {/* Background decoration */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
@@ -45,8 +45,8 @@ export default function Page() {
         </div>
 
         {/* Right Side: Login Form */}
-        <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-10 lg:p-16 bg-gray-50 relative">
-          <div className="w-full max-w-md">
+        <div className="flex-1 flex flex-col items-center justify-center p-0 sm:p-2 md:p-10 lg:p-16 bg-white md:bg-gray-50 relative">
+          <div className="w-full max-w-full md:max-w-md px-0 sm:px-2">
             
             <div className="flex justify-center w-full">
               <SignUp 
