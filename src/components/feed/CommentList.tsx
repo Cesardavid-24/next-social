@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useOptimistic, useState } from "react";
 import CommentInteraction from "./CommentInteraction";
+import EmojiPicker from "emoji-picker-react";
 
 type CommentWithUserAndLikes = Comment & { 
   user: User;
@@ -27,6 +28,7 @@ const CommentNode = ({
 }) => {
   const [isReplying, setIsReplying] = useState(false);
   const [replyDesc, setReplyDesc] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const replies = repliesMap.get(comment.id) || [];
   const { user } = useUser();
 
@@ -36,6 +38,11 @@ const CommentNode = ({
     await onAddReply(comment.id, replyDesc);
     setReplyDesc("");
     setIsReplying(false);
+    setShowEmojiPicker(false);
+  };
+
+  const handleEmojiClick = (emojiObject: any) => {
+    setReplyDesc((prev) => prev + emojiObject.emoji);
   };
 
   return (
@@ -68,7 +75,7 @@ const CommentNode = ({
 
         {isReplying && user && (
           <form
-            className="flex items-center gap-2 mt-2 bg-slate-100 rounded-xl px-4 py-2"
+            className="flex items-center gap-2 mt-2 bg-slate-100 rounded-xl px-4 py-2 relative"
             onSubmit={handleReplySubmit}
           >
             <input
@@ -78,6 +85,21 @@ const CommentNode = ({
               value={replyDesc}
               onChange={(e) => setReplyDesc(e.target.value)}
             />
+            <div className="relative flex items-center">
+              <Image 
+                src="/emoji.png" 
+                alt="emoji" 
+                width={16} 
+                height={16} 
+                className="cursor-pointer"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              />
+              {showEmojiPicker && (
+                <div className="absolute right-0 bottom-8 z-50">
+                  <EmojiPicker onEmojiClick={handleEmojiClick} width={300} height={350} />
+                </div>
+              )}
+            </div>
             <button
               type="submit"
               className="bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-blue-600 transition-colors"
@@ -122,6 +144,7 @@ const CommentList = ({
   const { user } = useUser();
   const [commentState, setCommentState] = useState(comments);
   const [desc, setDesc] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const [optimisticComments, addOptimisticComment] = useOptimistic(
     commentState,
@@ -134,6 +157,7 @@ const CommentList = ({
 
     const tempDesc = desc;
     setDesc("");
+    setShowEmojiPicker(false);
 
     addOptimisticComment({
       id: Math.random(),
@@ -200,6 +224,10 @@ const CommentList = ({
     } catch (err) {}
   };
 
+  const handleEmojiClick = (emojiObject: any) => {
+    setDesc((prev) => prev + emojiObject.emoji);
+  };
+
   // Build tree
   const rootComments: CommentWithUserAndLikes[] = [];
   const repliesMap = new Map<number, CommentWithUserAndLikes[]>();
@@ -220,7 +248,7 @@ const CommentList = ({
   return (
     <>
       {user && (
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4 mb-4 relative z-10">
           <Image
             src={user.imageUrl || "/noAvatar.png"}
             alt=""
@@ -239,9 +267,24 @@ const CommentList = ({
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
             />
+            <div className="relative flex items-center ml-2">
+              <Image 
+                src="/emoji.png" 
+                alt="emoji" 
+                width={20} 
+                height={20} 
+                className="cursor-pointer"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              />
+              {showEmojiPicker && (
+                <div className="absolute right-0 bottom-10 z-50">
+                  <EmojiPicker onEmojiClick={handleEmojiClick} width={300} height={350} />
+                </div>
+              )}
+            </div>
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-1.5 rounded-lg ml-2 hover:bg-blue-600 transition-colors shadow-sm"
+              className="bg-blue-500 text-white px-4 py-1.5 rounded-lg ml-3 hover:bg-blue-600 transition-colors shadow-sm"
             >
               Comentar
             </button>
