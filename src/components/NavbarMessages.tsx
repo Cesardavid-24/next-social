@@ -58,7 +58,7 @@ const NavbarMessages = ({ unreadMessages: initialUnreadMessages }: { unreadMessa
 
       {isOpen && (
         <div 
-          className="absolute top-10 right-0 bg-white p-4 rounded-lg shadow-lg w-[320px] max-h-[400px] overflow-y-auto z-50 cursor-default border border-gray-200" 
+          className="absolute top-10 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-0 bg-white p-4 rounded-lg shadow-lg w-[300px] sm:w-[320px] max-w-[90vw] max-h-[400px] overflow-y-auto z-50 cursor-default border border-gray-200" 
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-between items-center mb-4">

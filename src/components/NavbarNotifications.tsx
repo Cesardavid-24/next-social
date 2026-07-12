@@ -87,7 +87,7 @@ const NavbarNotifications = ({ requests }: { requests: RequestWithUser[] }) => {
 
       {isOpen && (
         <div
-          className="absolute top-10 right-0 bg-white p-4 rounded-lg shadow-lg w-[350px] max-h-[400px] overflow-y-auto z-50 cursor-default border border-gray-200 flex flex-col"
+          className="absolute top-10 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-0 bg-white p-4 rounded-lg shadow-lg w-[300px] sm:w-[350px] max-w-[90vw] max-h-[400px] overflow-y-auto z-50 cursor-default border border-gray-200 flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex gap-4 mb-4 border-b pb-2">

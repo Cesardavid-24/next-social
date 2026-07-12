@@ -76,15 +76,15 @@ const Navbar = async () => {
   return (
     <div className="h-24 flex items-center justify-between">
       {/* LEFT */}
-      <div className="md:hidden lg:block w-[20%]">
-        <Link href="/" className="font-bold text-xl text-blue-600 flex items-center gap-2">
+      <div className="flex-1 md:flex-none md:w-[20%]">
+        <Link href="/" className="font-bold text-xl text-blue-600 flex items-center gap-2 w-max">
           <Image src="/logo-unefa.png" alt="Logo" width={32} height={32} className="object-contain" />
-          <span>SomosUnefaEE</span>
+          <span className="hidden sm:inline-block">SomosUnefaEE</span>
         </Link>
       </div>
       {/* CENTER */}
       {userId && (
-        <div className="hidden md:flex w-[50%] text-sm items-center justify-between">
+        <div className="hidden md:flex flex-1 items-center justify-center">
           {/* LINKS */}
           <div className="flex gap-4 lg:gap-6 text-gray-600">
             <Link href="/" className="flex items-center gap-2">
@@ -113,7 +113,7 @@ const Navbar = async () => {
         </div>
       )}
       {/* RIGHT */}
-      <div className="w-[30%] flex items-center gap-4 xl:gap-8 justify-end">
+      <div className="flex-1 md:flex-none md:w-[30%] flex items-center justify-end gap-3 sm:gap-4 xl:gap-8">
         {userId ? (
           <>
             <ClerkLoading>
@@ -121,16 +121,18 @@ const Navbar = async () => {
             </ClerkLoading>
             <ClerkLoaded>
               <SignedIn>
-                <Link href="/people" className="cursor-pointer flex flex-col items-center gap-1">
-                  <Image src="/people.png" alt="People" width={20} height={20} className="w-5 h-5" />
-                  <span className="text-[10px] text-gray-500">Personas</span>
-                </Link>
-                <NavbarMessages unreadMessages={unreadMessages} />
-                <NavbarNotifications requests={requests} />
-                <UserButton />
+                <div className="hidden md:flex items-center gap-4 xl:gap-8">
+                  <Link href="/people" className="cursor-pointer flex flex-col items-center gap-1">
+                    <Image src="/people.png" alt="People" width={20} height={20} className="w-5 h-5" />
+                    <span className="text-[10px] text-gray-500">Personas</span>
+                  </Link>
+                  <NavbarMessages unreadMessages={unreadMessages} />
+                  <NavbarNotifications requests={requests} />
+                  <UserButton />
+                </div>
               </SignedIn>
             </ClerkLoaded>
-            <MobileMenu />
+            <MobileMenu unreadMessages={unreadMessages} requests={requests} />
           </>
         ) : (
           <div className="flex items-center gap-2 md:gap-4">
