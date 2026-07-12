@@ -1,5 +1,6 @@
 import { SignIn } from "@clerk/nextjs";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Page() {
   return (
@@ -17,11 +18,16 @@ export default function Page() {
           </div>
 
           <div className="relative z-10">
-            <div className="flex items-center justify-center md:justify-start gap-4 mb-4 md:mb-12">
-              <div className="bg-white p-2 rounded-xl shadow-sm flex items-center justify-center">
-                <Image src="/logo-unefa.png" alt="Logo Unefa" width={40} height={40} className="object-contain md:w-12 md:h-12" />
+            <div className="flex items-center justify-between gap-4 mb-4 md:mb-12">
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="bg-white p-2 rounded-xl shadow-sm flex items-center justify-center">
+                  <Image src="/logo-unefa.png" alt="Logo Unefa" width={40} height={40} className="object-contain md:w-12 md:h-12" />
+                </div>
+                <h1 className="text-xl md:text-2xl font-bold tracking-wide">SomosUnefaEE</h1>
               </div>
-              <h1 className="text-xl md:text-2xl font-bold tracking-wide">SomosUnefaEE</h1>
+              <Link href="/sign-up" className="md:hidden bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border border-white/30 backdrop-blur-sm whitespace-nowrap">
+                Registrarse
+              </Link>
             </div>
 
             <h2 className="text-center md:text-left text-2xl md:text-4xl lg:text-5xl font-extrabold md:mb-6 leading-tight">
