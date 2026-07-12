@@ -521,19 +521,6 @@ export const addStory = async (img: string) => {
   await ensureUserExists(userId);
 
   try {
-    const existingStory = await prisma.story.findFirst({
-      where: {
-        userId,
-      },
-    });
-
-    if (existingStory) {
-      await prisma.story.delete({
-        where: {
-          id: existingStory.id,
-        },
-      });
-    }
     const createdStory = await prisma.story.create({
       data: {
         userId,
@@ -551,6 +538,26 @@ export const addStory = async (img: string) => {
     console.log(err);
   }
 };
+
+export const deleteStory = async (storyId: number) => {
+  const { userId } = auth();
+
+  if (!userId) throw new Error("User is not authenticated!");
+
+  try {
+    await prisma.story.delete({
+      where: {
+        id: storyId,
+        userId,
+      },
+    });
+    revalidatePath("/");
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to delete story");
+  }
+};
+
 
 export const deletePost = async (postId: number) => {
   const { userId } = auth();
