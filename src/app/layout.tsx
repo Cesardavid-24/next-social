@@ -20,12 +20,14 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={inter.className}>
-          <div className="w-full bg-white px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+          {/* Header/Navbar */}
+          <header className="w-full bg-white px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 sticky top-0 z-50 shadow-sm">
             <Navbar />
-          </div>
-          <div className=" bg-slate-100 px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+          </header>
+          {/* Main Content Area */}
+          <main className="w-full min-h-[calc(100vh-64px)] bg-slate-100 px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 pb-10">
             {children}
-          </div>
+          </main>
         </body>
       </html>
     </ClerkProvider>
