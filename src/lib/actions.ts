@@ -292,7 +292,7 @@ export const switchLike = async (postId: number) => {
   }
 };
 
-export const addComment = async (postId: number, desc: string) => {
+export const addComment = async (postId: number, desc: string, parentId?: number) => {
   const { userId } = auth();
 
   if (!userId) throw new Error("User is not authenticated!");
@@ -305,6 +305,7 @@ export const addComment = async (postId: number, desc: string) => {
         desc,
         userId,
         postId,
+        ...(parentId && { parentId }),
       },
       include: {
         user: true,
@@ -315,6 +316,41 @@ export const addComment = async (postId: number, desc: string) => {
   } catch (err) {
     console.log(err);
     throw new Error("Something went wrong!");
+  }
+};
+
+export const switchCommentLike = async (commentId: number) => {
+  const { userId } = auth();
+
+  if (!userId) throw new Error("User is not authenticated!");
+
+  await ensureUserExists(userId);
+
+  try {
+    const existingLike = await prisma.like.findFirst({
+      where: {
+        commentId,
+        userId,
+      },
+    });
+
+    if (existingLike) {
+      await prisma.like.delete({
+        where: {
+          id: existingLike.id,
+        },
+      });
+    } else {
+      await prisma.like.create({
+        data: {
+          commentId,
+          userId,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    throw new Error("Something went wrong");
   }
 };
 
