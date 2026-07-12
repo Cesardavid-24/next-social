@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import FriendRequestList from "./rightMenu/FriendRequestList";
 import { FollowRequest, User } from "@prisma/client";
 
@@ -11,9 +11,20 @@ type RequestWithUser = FollowRequest & {
 
 const NavbarNotifications = ({ requests }: { requests: RequestWithUser[] }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (isOpen && containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [isOpen]);
 
   return (
-    <div className="relative cursor-pointer flex flex-col items-center gap-1" onClick={() => setIsOpen(!isOpen)}>
+    <div ref={containerRef} className="relative cursor-pointer flex flex-col items-center gap-1" onClick={() => setIsOpen(!isOpen)}>
       <div className="relative">
         <Image src="/notifications.png" alt="Notifications" width={20} height={20} className="w-5 h-5" />
         {requests.length > 0 && (

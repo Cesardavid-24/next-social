@@ -1,13 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const NavbarMessages = ({ unreadMessages }: { unreadMessages: any[] }) => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (isOpen && containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [isOpen]);
 
   const handleMessageClick = (username: string) => {
     setIsOpen(false);
@@ -15,7 +26,7 @@ const NavbarMessages = ({ unreadMessages }: { unreadMessages: any[] }) => {
   };
 
   return (
-    <div className="relative cursor-pointer flex flex-col items-center gap-1">
+    <div ref={containerRef} className="relative cursor-pointer flex flex-col items-center gap-1">
       <div className="relative" onClick={() => setIsOpen(!isOpen)}>
         <Image src="/messages.png" alt="Messages" width={20} height={20} className="w-5 h-5" />
         {unreadMessages.length > 0 && (
