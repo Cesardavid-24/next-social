@@ -71,15 +71,6 @@ const LeftMenu = ({ type }: { type: "home" | "profile" }) => {
           <Image src="/courses.png" alt="" width={20} height={20} />
           <span>Cursos</span>
         </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
-
-        <Link
-          href="/"
-          className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
-        >
-          <Image src="/settings.png" alt="" width={20} height={20} />
-          <span>Ajustes</span>
-        </Link>
       </div>
       <Ad size="sm"/>
     </div>
