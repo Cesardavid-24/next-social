@@ -151,7 +151,7 @@ model Story {
   expiresAt DateTime
   img       String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @unique
+  userId    String
 }
 
 model Message {
