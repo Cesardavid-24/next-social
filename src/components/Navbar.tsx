@@ -8,7 +8,7 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
 import NavbarNotifications from "./NavbarNotifications";
 import NavbarStories from "./NavbarStories";
@@ -17,12 +17,26 @@ import NavbarMessages from "./NavbarMessages";
 import { getUnreadMessages } from "@/lib/actions";
 
 const Navbar = async () => {
-  const { userId } = auth();
+  const clerkUser = await currentUser();
+  const userId = clerkUser?.id;
 
   let requests: any[] = [];
   let stories: any[] = [];
   let unreadMessages: any[] = [];
   if (userId) {
+    // Sync Clerk avatar with DB avatar
+    const dbUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatar: true },
+    });
+
+    if (dbUser && clerkUser?.imageUrl && dbUser.avatar !== clerkUser.imageUrl) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { avatar: clerkUser.imageUrl },
+      });
+    }
+
     unreadMessages = await getUnreadMessages();
     requests = await prisma.followRequest.findMany({
       where: {
