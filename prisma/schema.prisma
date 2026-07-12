@@ -45,6 +45,8 @@ model User {
   products               Product[]
   groupChatMemberships   GroupChatMember[]
   groupChatsCreated      GroupChat[]     @relation("GroupChatCreator")
+  notificationsSent      Notification[]  @relation("NotificationsSent")
+  notificationsReceived  Notification[]  @relation("NotificationsReceived")
 }
 
 model Event {
@@ -236,4 +238,20 @@ model Product {
   updatedAt   DateTime @updatedAt
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  isRead    Boolean  @default(false)
+  
+  sender    User     @relation("NotificationsSent", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId  String
+  
+  receiver  User     @relation("NotificationsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId String
+  
+  type      String   // "COMMENT_LIKE", "COMMENT_REPLY", "POST_COMMENT", "POST_LIKE"
+  postId    Int?
+  commentId Int?
 }

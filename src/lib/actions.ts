@@ -285,6 +285,18 @@ export const switchLike = async (postId: number) => {
           userId,
         },
       });
+
+      const post = await prisma.post.findUnique({ where: { id: postId } });
+      if (post && post.userId !== userId) {
+        await prisma.notification.create({
+          data: {
+            senderId: userId,
+            receiverId: post.userId,
+            type: "POST_LIKE",
+            postId: postId,
+          }
+        });
+      }
     }
   } catch (err) {
     console.log(err);
@@ -311,6 +323,34 @@ export const addComment = async (postId: number, desc: string, parentId?: number
         user: true,
       },
     });
+
+    if (parentId) {
+      const parentComment = await prisma.comment.findUnique({ where: { id: parentId } });
+      if (parentComment && parentComment.userId !== userId) {
+        await prisma.notification.create({
+          data: {
+            senderId: userId,
+            receiverId: parentComment.userId,
+            type: "COMMENT_REPLY",
+            postId: postId,
+            commentId: createdComment.id,
+          }
+        });
+      }
+    } else {
+      const post = await prisma.post.findUnique({ where: { id: postId } });
+      if (post && post.userId !== userId) {
+        await prisma.notification.create({
+          data: {
+            senderId: userId,
+            receiverId: post.userId,
+            type: "POST_COMMENT",
+            postId: postId,
+            commentId: createdComment.id,
+          }
+        });
+      }
+    }
 
     return createdComment;
   } catch (err) {
@@ -347,6 +387,19 @@ export const switchCommentLike = async (commentId: number) => {
           userId,
         },
       });
+
+      const comment = await prisma.comment.findUnique({ where: { id: commentId } });
+      if (comment && comment.userId !== userId) {
+        await prisma.notification.create({
+          data: {
+            senderId: userId,
+            receiverId: comment.userId,
+            type: "COMMENT_LIKE",
+            commentId: commentId,
+            postId: comment.postId,
+          }
+        });
+      }
     }
   } catch (err) {
     console.log(err);
@@ -859,6 +912,58 @@ export const sendGroupMessage = async (groupChatId: number, content: string) => 
     throw new Error("Failed to send group message");
   }
 };
+
+export const getNotifications = async () => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) return [];
+
+  try {
+    const notifications = await prisma.notification.findMany({
+      where: {
+        receiverId: currentUserId,
+        isRead: false,
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            surname: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return notifications;
+  } catch (err) {
+    console.log("Error fetching notifications:", err);
+    return [];
+  }
+};
+
+export const markNotificationsAsRead = async () => {
+  const { userId: currentUserId } = auth();
+  if (!currentUserId) return;
+
+  try {
+    await prisma.notification.updateMany({
+      where: {
+        receiverId: currentUserId,
+        isRead: false,
+      },
+      data: {
+        isRead: true,
+      },
+    });
+  } catch (err) {
+    console.log("Error marking notifications as read:", err);
+  }
+};
+
 
 export const getGroupMessages = async (groupChatId: number) => {
   const { userId: currentUserId } = auth();
