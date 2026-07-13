@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { getGroupMessages, sendGroupMessage } from "@/lib/actions";
 
 type Message = {
@@ -134,17 +135,21 @@ export default function GroupChatBox({
                 className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}
               >
                 {!isMe && msg.sender && (
-                  <Image
-                    src={msg.sender.avatar || "/noAvatar.png"}
-                    alt=""
-                    width={28}
-                    height={28}
-                    className="w-7 h-7 rounded-full object-cover mr-2 self-end mb-1"
-                  />
+                  <Link href={`/profile/${msg.sender.username}`}>
+                    <Image
+                      src={msg.sender.avatar || "/noAvatar.png"}
+                      alt=""
+                      width={28}
+                      height={28}
+                      className="w-7 h-7 rounded-full object-cover mr-2 self-end mb-1 cursor-pointer hover:ring-2 hover:ring-blue-300 transition-all"
+                    />
+                  </Link>
                 )}
                 <div className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
                   {!isMe && msg.sender && (
-                    <span className="text-[10px] text-gray-500 ml-1 mb-1">{msg.sender.username}</span>
+                    <Link href={`/profile/${msg.sender.username}`} className="text-[10px] text-gray-500 ml-1 mb-1 hover:underline">
+                      {msg.sender.username}
+                    </Link>
                   )}
                   <div
                     className={`max-w-[100%] p-3 rounded-2xl ${

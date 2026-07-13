@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Comments from "./Comments";
 import { Post as PostType, User } from "@prisma/client";
 import PostInteraction from "./PostInteraction";
@@ -37,21 +38,23 @@ const Post = ({ post }: { post: FeedPostType }) => {
       {/* USER */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Image
-            src={post.user.avatar || "/noAvatar.png"}
-            width={40}
-            height={40}
-            alt=""
-            className="w-10 h-10 rounded-full"
-          />
-          <div className="flex flex-col">
-            <span className="font-medium">
-              {post.user.name && post.user.surname
-                ? post.user.name + " " + post.user.surname
-                : post.user.username}
-            </span>
-            <span className="text-xs text-gray-500">@{post.user.username}</span>
-          </div>
+          <Link href={`/profile/${post.user.username}`} className="flex items-center gap-4">
+            <Image
+              src={post.user.avatar || "/noAvatar.png"}
+              width={40}
+              height={40}
+              alt=""
+              className="w-10 h-10 rounded-full"
+            />
+            <div className="flex flex-col hover:underline">
+              <span className="font-medium">
+                {post.user.name && post.user.surname
+                  ? post.user.name + " " + post.user.surname
+                  : post.user.username}
+              </span>
+              <span className="text-xs text-gray-500">@{post.user.username}</span>
+            </div>
+          </Link>
         </div>
         {userId === post.user.id && <PostInfo postId={post.id} />}
       </div>

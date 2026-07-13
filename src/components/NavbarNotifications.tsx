@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import FriendRequestList from "./rightMenu/FriendRequestList";
 import { FollowRequest, User } from "@prisma/client";
@@ -123,24 +124,26 @@ const NavbarNotifications = ({ requests }: { requests: RequestWithUser[] }) => {
             <div className="flex flex-col gap-4">
               {activityNotifications.map((notif) => (
                 <div key={notif.id} className={`flex items-center gap-4 ${!notif.isRead ? "bg-blue-50 p-2 rounded-lg" : ""}`}>
-                  <Image
-                    src={notif.sender.avatar || "/noAvatar.png"}
-                    alt=""
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div className="flex flex-col flex-1">
-                    <span className="text-sm">
-                      <span className="font-semibold mr-1">
-                        {notif.sender.name && notif.sender.surname
-                          ? `${notif.sender.name} ${notif.sender.surname}`
-                          : notif.sender.username}
+                  <Link href={`/profile/${notif.sender.username}`} className="flex items-center gap-4 flex-1">
+                    <Image
+                      src={notif.sender.avatar || "/noAvatar.png"}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 rounded-full object-cover shrink-0"
+                    />
+                    <div className="flex flex-col flex-1">
+                      <span className="text-sm">
+                        <span className="font-semibold mr-1 hover:underline">
+                          {notif.sender.name && notif.sender.surname
+                            ? `${notif.sender.name} ${notif.sender.surname}`
+                            : notif.sender.username}
+                        </span>
+                        <span className="text-gray-700">{getNotificationText(notif.type)}</span>
                       </span>
-                      {getNotificationText(notif.type)}
-                    </span>
-                    <span className="text-xs text-gray-500">{timeago.format(notif.createdAt)}</span>
-                  </div>
+                      <span className="text-xs text-gray-500">{timeago.format(notif.createdAt)}</span>
+                    </div>
+                  </Link>
                 </div>
               ))}
             </div>

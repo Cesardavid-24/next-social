@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { getMessages, sendMessage, markMessagesAsRead } from "@/lib/actions";
 import { User } from "@prisma/client";
 
@@ -95,7 +96,7 @@ export default function ChatBox({
   return (
     <div className="flex flex-col h-full bg-white relative">
       {/* HEADER DE CHAT */}
-      <div className="flex items-center gap-4 p-4 border-b border-gray-200 bg-white">
+      <Link href={`/profile/${otherUser.username}`} className="flex items-center gap-4 p-4 border-b border-gray-200 bg-white hover:bg-slate-50 transition-colors">
         <Image
           src={otherUser.avatar || "/noAvatar.png"}
           alt=""
@@ -104,14 +105,14 @@ export default function ChatBox({
           className="w-10 h-10 rounded-full object-cover"
         />
         <div className="flex flex-col">
-          <span className="font-semibold text-gray-800">
+          <span className="font-semibold text-gray-800 hover:underline">
             {otherUser.name && otherUser.surname
               ? `${otherUser.name} ${otherUser.surname}`
               : otherUser.username}
           </span>
           <span className="text-xs text-gray-500">@{otherUser.username}</span>
         </div>
-      </div>
+      </Link>
 
       {/* ÁREA DE MENSAJES */}
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-slate-50" ref={chatContainerRef}>

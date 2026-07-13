@@ -3,6 +3,7 @@
 import { acceptFollowRequest, declineFollowRequest } from "@/lib/actions";
 import { FollowRequest, User } from "@prisma/client";
 import Image from "next/image";
+import Link from "next/link";
 import { useOptimistic, useState } from "react";
 
 type RequestWithUser = FollowRequest & {
@@ -35,7 +36,7 @@ const FriendRequestList = ({ requests }: { requests: RequestWithUser[] }) => {
     <div className="">
       {optimisticRequests.map((request) => (
         <div className="flex items-center justify-between" key={request.id}>
-          <div className="flex items-center gap-4">
+          <Link href={`/profile/${request.sender.username}`} className="flex items-center gap-4 hover:underline">
             <Image
               src={request.sender.avatar || "/noAvatar.png"}
               alt=""
@@ -48,7 +49,7 @@ const FriendRequestList = ({ requests }: { requests: RequestWithUser[] }) => {
                 ? request.sender.name + " " + request.sender.surname
                 : request.sender.username}
             </span>
-          </div>
+          </Link>
           <div className="flex gap-3 justify-end">
             <form action={() => accept(request.id, request.sender.id)}>
               <button>

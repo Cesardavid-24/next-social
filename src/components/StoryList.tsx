@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { Story, User } from "@prisma/client";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
+import Link from "next/link";
 import { useOptimistic, useState, useEffect } from "react";
 
 type StoryWithUser = Story & {
@@ -220,18 +221,20 @@ const StoryList = ({
 
             {/* Top user bar inside modal */}
             <div className="absolute top-8 left-4 flex items-center gap-3 text-white z-20 w-full pr-8">
-              <Image
-                src={activeStoryGroup[currentStoryIndex].user.avatar || "/noAvatar.png"}
-                alt=""
-                width={36}
-                height={36}
-                className="w-9 h-9 rounded-full object-cover ring-1 ring-white/50"
-              />
-              <span className="font-semibold text-sm drop-shadow-md">
-                {activeStoryGroup[currentStoryIndex].user.name && activeStoryGroup[currentStoryIndex].user.surname
-                  ? activeStoryGroup[currentStoryIndex].user.name + " " + activeStoryGroup[currentStoryIndex].user.surname
-                  : activeStoryGroup[currentStoryIndex].user.username}
-              </span>
+              <Link href={`/profile/${activeStoryGroup[currentStoryIndex].user.username}`} className="flex items-center gap-3 hover:underline">
+                <Image
+                  src={activeStoryGroup[currentStoryIndex].user.avatar || "/noAvatar.png"}
+                  alt=""
+                  width={36}
+                  height={36}
+                  className="w-9 h-9 rounded-full object-cover ring-1 ring-white/50"
+                />
+                <span className="font-semibold text-sm drop-shadow-md">
+                  {activeStoryGroup[currentStoryIndex].user.name && activeStoryGroup[currentStoryIndex].user.surname
+                    ? activeStoryGroup[currentStoryIndex].user.name + " " + activeStoryGroup[currentStoryIndex].user.surname
+                    : activeStoryGroup[currentStoryIndex].user.username}
+                </span>
+              </Link>
 
               {/* Close Button */}
               <button

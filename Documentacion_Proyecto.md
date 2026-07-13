@@ -75,4 +75,19 @@ Para explicar cómo se guarda la información, se pueden mencionar las "Tablas" 
 6.  **`Poll` & `PollVote`**: Para crear encuestas en los posts y guardar los votos.
 
 ---
+
+## 5. Últimas Modificaciones y Mejoras 🛠️
+
+Recientemente se han implementado una serie de correcciones y mejoras enfocadas en la experiencia de usuario y el diseño:
+
+*   **Autenticación y Páginas de Inicio:**
+    *   Se solucionaron problemas en los formularios y el flujo de inicio de sesión / registro en las páginas de `sign-in` y `sign-up`.
+    *   Se mejoró la página de bienvenida y la interfaz de autenticación.
+*   **Diseño Responsivo (Móviles):**
+    *   Se adaptó la barra superior (`Navbar`) y el menú móvil (`MobileMenu`) para que la aplicación funcione y se vea correctamente en diferentes tamaños de pantalla.
+    *   Se ajustaron los componentes de iconos en la navegación (`NavbarMessages`, `NavbarNotifications`).
+*   **Gestión de Perfil:**
+    *   Se corrigió y mejoró la funcionalidad para subir la foto de perfil del usuario desde la barra de navegación.
+
+---
 *Fin del resumen.*
