@@ -41,7 +41,7 @@ const LeftMenu = ({ type }: { type: "home" | "profile" }) => {
         </Link>
         <hr className="border-t-1 border-gray-50 w-36 self-center" />
         <Link
-          href="/"
+          href="/nucleos"
           className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
         >
           <Image src="/albums.png" alt="" width={20} height={20} />
@@ -49,7 +49,7 @@ const LeftMenu = ({ type }: { type: "home" | "profile" }) => {
         </Link>
         <hr className="border-t-1 border-gray-50 w-36 self-center" />
         <Link
-          href="/"
+          href="/videos"
           className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
         >
           <Image src="/videos.png" alt="" width={20} height={20} />
@@ -57,7 +57,7 @@ const LeftMenu = ({ type }: { type: "home" | "profile" }) => {
         </Link>
         <hr className="border-t-1 border-gray-50 w-36 self-center" />
         <Link
-          href="/"
+          href="/noticias"
           className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
         >
           <Image src="/news.png" alt="" width={20} height={20} />
@@ -65,7 +65,7 @@ const LeftMenu = ({ type }: { type: "home" | "profile" }) => {
         </Link>
         <hr className="border-t-1 border-gray-50 w-36 self-center" />
         <Link
-          href="/"
+          href="/cursos"
           className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100"
         >
           <Image src="/courses.png" alt="" width={20} height={20} />
