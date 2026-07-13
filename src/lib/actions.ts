@@ -1072,3 +1072,30 @@ export const getGroupChatDetails = async (groupChatId: number) => {
     return null;
   }
 };
+
+export const addQuickEvent = async (category: string, date: string, time: string) => {
+  const { userId } = auth();
+  if (!userId) throw new Error("User is not authenticated!");
+
+  try {
+    const dateTimeString = `${date}T${time}:00`;
+    const eventDate = new Date(dateTimeString);
+
+    const event = await prisma.event.create({
+      data: {
+        title: `Evento de ${category}`,
+        description: `Detalles por confirmar...`,
+        location: "UNEFA",
+        category,
+        date: eventDate,
+        userId,
+      }
+    });
+
+    revalidatePath("/info-unefa");
+    return event;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to create quick event");
+  }
+};
